@@ -1,4 +1,34 @@
 import sys
+import heapq
+import itertools
+
+pq = []                         # list of entries arranged in a heap
+entry_finder = {}               # mapping of tasks to entries
+REMOVED = '<removed-task>'      # placeholder for a removed task
+counter = itertools.count()     # unique sequence count
+
+def add_task(task, priority=0):
+    'Add a new task or update the priority of an existing task'
+    if task in entry_finder:
+        remove_task(task)
+    count = next(counter)
+    entry = [priority, count, task]
+    entry_finder[task] = entry
+    heapq.heappush(pq, entry)
+
+def remove_task(task):
+    'Mark an existing task as REMOVED.  Raise KeyError if not found.'
+    entry = entry_finder.pop(task)
+    entry[-1] = REMOVED
+
+def pop_task():
+    'Remove and return the lowest priority task. Raise KeyError if empty.'
+    while pq:
+        priority, count, task = heapq.heappop(pq)
+        if task is not REMOVED:
+            del entry_finder[task]
+            return task, priority
+    raise KeyError('pop from an empty priority queue')
 
 with open("input.txt") as f:
     cavern = [[int(num) for num in line.rstrip("\n")] for line in f]
@@ -21,20 +51,15 @@ for i in range(4):
 start = (0, 0)
 exit = (len(cavern) - 1, len(cavern[0]) - 1)
 
-#create list for unvisited positions and dictionary with each position's risk value
-cavern_risk_values = {}
-unvisited = []
+#create pq for unvisited positions and their value
+max_val = sys.maxsize
 for y in range(len(cavern)):
     for x in range(len(cavern[0])):
-        unvisited.append((y, x))
-        cavern_risk_values[(y, x)] = cavern[y][x]
-
-#create dict to keep track of lowest_risk path and mark start as 0 since it is not counted 
-lowest_risk = {}
-max_val = sys.maxsize
-for pos in unvisited:
-    lowest_risk[pos] = max_val
-lowest_risk[start] = 0
+        add_task((y,x), max_val)
+#set start as 0 since not counted and add it to visited
+add_task(start, 0)
+visited = {}
+visited[start] = 0
 
 prev_pos = {} #dict to keep track of how you're getting to each position
 
@@ -55,30 +80,24 @@ def getNeighbors(curr_pos):
             if abs(col) != abs(row):
                 new_y = y + col
                 new_x = x + row
-                if (new_y >= 0 and new_y < max_y) and (new_x >= 0 and new_x < max_x) and (new_y, new_x):
-                    neighbors.append((new_y, new_x))
+                if (new_y >= 0 and new_y < max_y) and (new_x >= 0 and new_x < max_x)and (new_y, new_x) not in visited:
+                        neighbors.append((new_y, new_x))
 
     return neighbors
 
-
 #dijkstra's algo
-#extremely inefficient solution solution for larger grid. Should implement priority queue
-while len(unvisited) > 0:
-    if len(unvisited) % 100 == 0:
-        print(len(unvisited))
-    curr_lowest_risk = None
-    for pos in unvisited:
-        if curr_lowest_risk == None:
-            curr_lowest_risk = pos
-        elif lowest_risk[pos] < lowest_risk[curr_lowest_risk]:
-            curr_lowest_risk = pos
-    neighbors = getNeighbors(curr_lowest_risk)
+while len(entry_finder) > 0:
+    if len(entry_finder) % 100 == 0: #print out progress
+        print(len(entry_finder))
+    curr_pos, curr_risk = pop_task()
+    neighbors = getNeighbors(curr_pos)
     for neighbor in neighbors:
-        tent_risk = lowest_risk[curr_lowest_risk] + cavern_risk_values[neighbor]
-        if tent_risk < lowest_risk[neighbor]:
-            lowest_risk[neighbor] = tent_risk
-            prev_pos[neighbor] = curr_lowest_risk
-    unvisited.remove(curr_lowest_risk)
+        tent_risk = curr_risk + cavern[neighbor[0]][neighbor[1]]
+        entry = entry_finder[neighbor]
+        if tent_risk < entry[0]:
+            add_task(neighbor, tent_risk)
+            prev_pos[neighbor] = curr_pos
+    visited[curr_pos] = curr_risk
 
 #prints out path backwards for debugging purposes
 def printPath(exit):
@@ -89,4 +108,4 @@ def printPath(exit):
         print(previous)
         printPath(previous)
 
-print("answer: ", lowest_risk[exit])
+print("answer:", visited[exit])
