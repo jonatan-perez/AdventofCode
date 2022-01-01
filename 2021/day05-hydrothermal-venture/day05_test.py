@@ -1,6 +1,6 @@
 import pytest
-import problem1
-import problem2
+import day05_problem1
+import day05_problem2
 
 with open("2021/day05-hydrothermal-venture/test_input.txt") as f:
     instructions = []
@@ -11,7 +11,7 @@ with open("2021/day05-hydrothermal-venture/test_input.txt") as f:
         instructions.append([start, end])
 
 def test_problem1():
-    assert problem1.calc_overlaps(instructions) == 5
+    assert day05_problem1.calc_overlaps(instructions) == 5
 
 def test_problem2():
-    assert problem2.calc_overlap(instructions) == 12
+    assert day05_problem2.calc_overlap(instructions) == 12
