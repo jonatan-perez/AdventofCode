@@ -1,4 +1,4 @@
-with open("input.txt") as f: 
+with open("2021/day01-sonar-sweep/input.txt") as f: 
     numbers = [int(line) for line in f]
 
 def larger_sums(numbers):
