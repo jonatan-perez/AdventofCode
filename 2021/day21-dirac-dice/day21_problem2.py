@@ -1,4 +1,4 @@
-with open("input.txt") as f:
+with open("2021/day21-dirac-dice/input.txt") as f:
     p1_pos = int(f.readline().rstrip("\n")[-1])
     p2_pos = int(f.readline().rstrip("\n")[-1])
 
@@ -29,4 +29,4 @@ def diracGame(p1_score, p1_pos, p2_score, p2_pos):
         CACHE[(p1_score, p1_pos, p2_score, p2_pos)] = score
         return score
 
-print(diracGame(0, p1_pos, 0, p2_pos))
+print(max(diracGame(0, p1_pos, 0, p2_pos)))

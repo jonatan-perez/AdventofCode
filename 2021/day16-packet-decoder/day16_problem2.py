@@ -2,31 +2,36 @@ from collections import namedtuple
 from math import prod
 
 packet = namedtuple("packet", ("version", "type_id", "value", "subpackets"))
-with open("input.txt") as f:
-    input = f.readline().rstrip("\n")
+def convert_to_hex(file):
+    if file == "input":
+        with open(f"2021/day16-packet-decoder/{file}.txt") as f:
+            input = f.readline().rstrip("\n")
+    else:
+        input = file
+        
+    hex_to_bin = {
+        "0": "0000",
+        "1": "0001",
+        "2": "0010",
+        "3": "0011",
+        "4": "0100",
+        "5": "0101",
+        "6": "0110",
+        "7": "0111",
+        "8": "1000",
+        "9": "1001",
+        "A": "1010",
+        "B": "1011",
+        "C": "1100",
+        "D": "1101",
+        "E": "1110",
+        "F": "1111"
+    }
 
-hex_to_bin = {
-    "0": "0000",
-    "1": "0001",
-    "2": "0010",
-    "3": "0011",
-    "4": "0100",
-    "5": "0101",
-    "6": "0110",
-    "7": "0111",
-    "8": "1000",
-    "9": "1001",
-    "A": "1010",
-    "B": "1011",
-    "C": "1100",
-    "D": "1101",
-    "E": "1110",
-    "F": "1111"
-}
-
-transmission = ""
-for hex in input:
-    transmission += hex_to_bin[hex]
+    transmission = ""
+    for hex in input:
+        transmission += hex_to_bin[hex]
+    return transmission
 
 def decodeTransmission(transmission, i):
     version = int(transmission[i:i + 3], 2)
@@ -109,5 +114,9 @@ def calcValue(type_id, subpackets):
         value = int(value)
     return value
 
-packet = decodeTransmission(transmission, 0)[0]
-print(packet.value)
+def get_answer(file):
+    transmission = convert_to_hex(file)
+    packet = decodeTransmission(transmission, 0)[0]
+    return packet.value
+
+print(get_answer("input"))

@@ -1,6 +1,10 @@
-with open("input.txt") as f:
-    input = [line.replace("\n", "") for line in f]
-    numbers_drawn = [int(i) for i in input[0].split(",")]
+def get_input(file):
+    with open(f"2021/day04-giant-squid/{file}.txt") as f:
+        input = [line.replace("\n", "") for line in f]
+        numbers_drawn = [int(i) for i in input[0].split(",")]
+    return input, numbers_drawn
+
+def makeBoards(input):
     input = input[2:]
 
     boards = []
@@ -13,6 +17,8 @@ with open("input.txt") as f:
             curr_board.append([int(i) for i in line.split()])
     boards.append(curr_board) #edge case of last board
 
+    return boards
+
 def checkBoard(board):
     for row in range(5):
         if sum(board[row]) == -5:
@@ -23,14 +29,13 @@ def checkBoard(board):
             return True
     return False
 
-def markBoard(num_called):
-    global boards
+def markBoard(num_called, boards):
     for board in boards:
         for y in range(5):
             for x in range(5):
                 if board[y][x] == num_called:
                     board[y][x] = -1
-
+    return boards
 
 def getUnmarked(board):
     unmarked = []
@@ -41,14 +46,13 @@ def getUnmarked(board):
 
     return unmarked
 
-def playBingo(numbers):
-    global boards
+def playBingo(numbers, boards):
     final_score = 0
 
     for number in numbers:
         board_won = False
         winning_boards = []
-        markBoard(number)
+        boards = markBoard(number, boards)
         
         for i in range(len(boards)):
             if checkBoard(boards[i]) and len(boards) > 1:
@@ -65,5 +69,9 @@ def playBingo(numbers):
             for i in range(len(boards_copy)):
                 if i not in winning_boards:
                     boards.append(boards_copy[i])
+def get_answer(file):
+    input, numbers_drawn = get_input(file)
+    boards = makeBoards(input)
+    return playBingo(numbers_drawn, boards)
 
-print(playBingo(numbers_drawn))
+print(get_answer("input"))

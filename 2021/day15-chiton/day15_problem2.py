@@ -30,40 +30,46 @@ def pop_task():
             return task, priority
     raise KeyError('pop from an empty priority queue')
 
-with open("input.txt") as f:
-    cavern = [[int(num) for num in line.rstrip("\n")] for line in f]
-
 def expand(row):
     return [(val + 1 if val < 9 else 1) for val in row]
 
-for row in cavern:
-    row_copy = row.copy()
+def get_inputs(file):
+    with open(f"2021/day15-chiton/{file}.txt") as f:
+        cavern = [[int(num) for num in line.rstrip("\n")] for line in f]
+    for row in cavern:
+        row_copy = row.copy()
+        for i in range(4):
+            row_copy = expand(row_copy)
+            row.extend(row_copy)
+
+    new_rows = cavern.copy()
+
     for i in range(4):
-        row_copy = expand(row_copy)
-        row.extend(row_copy)
+        new_rows = [expand(row) for row in new_rows]
+        cavern.extend(new_rows)
 
-new_rows = cavern.copy()
+    start = (0, 0)
+    exit = (len(cavern) - 1, len(cavern[0]) - 1)
 
-for i in range(4):
-    new_rows = [expand(row) for row in new_rows]
-    cavern.extend(new_rows)
+    return cavern, start, exit
 
-start = (0, 0)
-exit = (len(cavern) - 1, len(cavern[0]) - 1)
 
-#create pq for unvisited positions and their value
-max_val = sys.maxsize
-for y in range(len(cavern)):
-    for x in range(len(cavern[0])):
-        add_task((y,x), max_val)
-#set start as 0 since not counted and add it to visited
-add_task(start, 0)
-visited = {}
-visited[start] = 0
+def create_pq(cavern, start):
+    #create pq for unvisited positions and their value
+    max_val = sys.maxsize
+    for y in range(len(cavern)):
+        for x in range(len(cavern[0])):
+            add_task((y,x), max_val)
+    #set start as 0 since not counted and add it to visited
+    add_task(start, 0)
+    visited = {}
+    visited[start] = 0
+    
+    return visited
 
 prev_pos = {} #dict to keep track of how you're getting to each position
 
-def getNeighbors(curr_pos):
+def getNeighbors(curr_pos, cavern, visited):
     """
     Given a tuple of (y, x) returns neighbors (up, down, right, left) within bounds of the cavern
     """
@@ -84,23 +90,24 @@ def getNeighbors(curr_pos):
                         neighbors.append((new_y, new_x))
 
     return neighbors
-
-#dijkstra's algo
-while len(entry_finder) > 0:
-    if len(entry_finder) % 100 == 0: #print out progress
-        print(len(entry_finder))
-    curr_pos, curr_risk = pop_task()
-    neighbors = getNeighbors(curr_pos)
-    for neighbor in neighbors:
-        tent_risk = curr_risk + cavern[neighbor[0]][neighbor[1]]
-        entry = entry_finder[neighbor]
-        if tent_risk < entry[0]:
-            add_task(neighbor, tent_risk)
-            prev_pos[neighbor] = curr_pos
-    visited[curr_pos] = curr_risk
+def dijkstras(cavern, visited):
+    #dijkstra's algo
+    while len(entry_finder) > 0:
+        # if len(entry_finder) % 100 == 0: #print out progress
+        #     print(len(entry_finder))
+        curr_pos, curr_risk = pop_task()
+        neighbors = getNeighbors(curr_pos, cavern, visited)
+        for neighbor in neighbors:
+            tent_risk = curr_risk + cavern[neighbor[0]][neighbor[1]]
+            entry = entry_finder[neighbor]
+            if tent_risk < entry[0]:
+                add_task(neighbor, tent_risk)
+                prev_pos[neighbor] = curr_pos
+        visited[curr_pos] = curr_risk
+    return visited
 
 #prints out path backwards for debugging purposes
-def printPath(exit):
+def printPath(start, exit):
     if exit == start:
         return
     else:
@@ -108,4 +115,12 @@ def printPath(exit):
         print(previous)
         printPath(previous)
 
-print("answer:", visited[exit])
+
+def get_answer(file):
+    cavern, start, exit = get_inputs(file)
+    visited = create_pq(cavern, start)
+    visited = dijkstras(cavern, visited)
+    return visited[exit]
+
+
+print(get_answer("input"))

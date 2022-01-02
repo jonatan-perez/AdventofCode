@@ -1,8 +1,10 @@
-with open("input.txt") as f:
-    lanternfish = [0 for i in range(9)]
-    fish_list =  [int(i) for i in f.readline().strip("\n").split(",")]
-    for fish in fish_list:
-        lanternfish[fish] += 1
+def createLanternfishList(file):
+    with open(file) as f:
+        lanternfish = [0 for i in range(9)]
+        fish_list =  [int(i) for i in f.readline().strip("\n").split(",")]
+        for fish in fish_list:
+            lanternfish[fish] += 1
+    return lanternfish
 
 def processOneDay(lanternfish, days_left):
     new_lanternfish = [0 for i in range(9)]
@@ -20,4 +22,5 @@ def processOneDay(lanternfish, days_left):
 
         return processOneDay(new_lanternfish, days_left - 1)
 
+lanternfish = createLanternfishList("2021/day06-lanternfish/input.txt")
 print(processOneDay(lanternfish, 256))

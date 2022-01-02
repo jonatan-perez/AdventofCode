@@ -1,7 +1,9 @@
-with open("input.txt") as f:
+with open("2021/day08-seven-segment-search/input.txt") as f:
     lines = [line.rstrip("\n").split(" | ") for line in f]
-    input_code = [line[0].split(" ") for line in lines]
     outputs = [line[1].split(" ") for line in lines]
+
+def get_input_code(lines):
+    return [line[0].split(" ") for line in lines]
 
 def decodeInput(input_code):
     number_code = {}
@@ -42,14 +44,17 @@ def decodeInput(input_code):
                 number_code[6] = sorted_value
     return number_code
 
-total = 0
-for i in range(len(input_code)):
-    current_number = ""
-    number_code = decodeInput(input_code[i])
-    code = {v: k for k, v in number_code.items()}
-    for encoded_number in outputs[i]:
-        sorted_number = "".join(sorted(encoded_number))
-        current_number += str(code[sorted_number])
-    total += int(current_number)
-
-print(total)
+def add_output_values(input_code, outputs):
+    total = 0
+    for i in range(len(input_code)):
+        current_number = ""
+        number_code = decodeInput(input_code[i])
+        code = {v: k for k, v in number_code.items()}
+        for encoded_number in outputs[i]:
+            sorted_number = "".join(sorted(encoded_number))
+            current_number += str(code[sorted_number])
+        total += int(current_number)
+    return total
+    
+input_code = get_input_code(lines)
+print(add_output_values(input_code, outputs))
