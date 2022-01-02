@@ -1,4 +1,4 @@
-with open("input.txt") as f:
+with open("2021/day06-lanternfish/input.txt") as f:
    lanternfish =  [int(i) for i in f.readline().strip("\n").split(",")]
 
 
