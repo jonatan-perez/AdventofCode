@@ -1,6 +1,8 @@
-with open("2021/day04-giant-squid/input.txt") as f:
-    input = [line.replace("\n", "") for line in f]
-    numbers_drawn = [int(i) for i in input[0].split(",")]
+def get_input(file):
+    with open(f"2021/day04-giant-squid/{file}.txt") as f:
+        input = [line.replace("\n", "") for line in f]
+        numbers_drawn = [int(i) for i in input[0].split(",")]
+    return input, numbers_drawn
 
 def makeBoards(input):
     input = input[2:]
@@ -59,7 +61,11 @@ def playBingo(numbers, boards):
                 final_score += sum(numbers_left)
                 final_score *= number
                 return final_score
+                
+def get_answer(file):
+    input, numbers_drawn = get_input(file)
+    boards = makeBoards(input)
+    return playBingo(numbers_drawn, boards)
 
-boards = makeBoards(input)
-print(playBingo(numbers_drawn, boards))
+print(get_answer("input"))
                 
